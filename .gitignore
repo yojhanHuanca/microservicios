@@ -1,0 +1,19 @@
+# IDE
+.idea/
+*.iml
+
+# Maven / Java
+target/
+.mvn/wrapper/maven-wrapper.jar
+
+# Runtime logs
+run-logs/
+*.log
+
+# OS
+Thumbs.db
+Desktop.ini
+
+# Environment
+.env
+.env.*

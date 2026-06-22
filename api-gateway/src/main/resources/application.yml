@@ -1,0 +1,48 @@
+server:
+  port: 8080
+
+spring:
+  application:
+    name: api-gateway
+  profiles:
+    active: dev
+  cloud:
+    gateway:
+      server:
+        webmvc:
+          routes:
+            - id: paciente-service
+              uri: lb://paciente-service
+              predicates:
+                - Path=/api/pacientes/**
+            - id: medico-service-medicos
+              uri: lb://medico-service
+              predicates:
+                - Path=/api/medicos/**
+            - id: medico-service-especialidades
+              uri: lb://medico-service
+              predicates:
+                - Path=/api/especialidades/**
+            - id: medico-service-horarios
+              uri: lb://medico-service
+              predicates:
+                - Path=/api/horarios-medicos/**
+            - id: medico-service-consultorios
+              uri: lb://medico-service
+              predicates:
+                - Path=/api/consultorios/**
+            - id: cita-service
+              uri: lb://cita-service
+              predicates:
+                - Path=/api/citas/**
+            - id: cita-service-estados
+              uri: lb://cita-service
+              predicates:
+                - Path=/api/estados-cita/**
+
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:8761/eureka/
+  instance:
+    prefer-ip-address: true
