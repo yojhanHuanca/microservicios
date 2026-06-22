@@ -1,127 +1,248 @@
-# Evaluacion 03 - Sistema de Gestion de Citas Medicas
+# Evaluacion 03 - Sistema Integral de Gestion Hospitalaria
 
-## Servicios implementados
+Sistema de gestion de citas medicas desarrollado con arquitectura de microservicios usando Spring Boot, Spring Cloud Eureka, API Gateway, Spring Data JPA y MySQL.
 
-- `eureka-server`: registro de microservicios en `http://localhost:8761`.
-- `api-gateway`: entrada unica en `http://localhost:8080`.
-- `paciente-service`: pacientes, puerto `8085`.
-- `medico-service`: medicos, especialidades, horarios medicos y consultorios, puerto `8086`.
-- `cita-service`: citas y estados de cita, puerto `8087`.
+El objetivo del proyecto es administrar pacientes, medicos, especialidades, consultorios, horarios medicos, citas y atenciones, demostrando registro de servicios, enrutamiento centralizado, validaciones de negocio y pruebas con Postman.
 
-## Orden de ejecucion
+## Arquitectura
 
-Ejecutar cada comando en una terminal distinta:
+```text
+                 Navegador
+                    |
+                    v
+            Eureka Server :8761
+                    ^
+                    |
+  -------------------------------------------------
+  |                 |               |             |
+API Gateway     Pacientes        Medicos        Citas
+   :8080          :8085           :8086         :8087
+                    |               |             |
+              bd_paciente       bd_medico      bd_cita
+```
+
+## Microservicios
+
+| Servicio | Puerto | Responsabilidad |
+| --- | ---: | --- |
+| `eureka-server` | `8761` | Registro y descubrimiento de servicios |
+| `api-gateway` | `8080` | Entrada unica para consumir los microservicios |
+| `paciente-service` | `8085` | CRUD de pacientes |
+| `medico-service` | `8086` | CRUD de medicos, especialidades, consultorios y horarios |
+| `cita-service` | `8087` | CRUD de citas, estados y atenciones |
+
+## Tecnologias
+
+- Java 21
+- Spring Boot 4.0.6
+- Spring Cloud 2025.1.0
+- Spring Cloud Netflix Eureka
+- Spring Cloud Gateway MVC
+- Spring Data JPA
+- Spring Validation
+- Spring Security
+- MySQL / XAMPP
+- Maven
+- Postman
+
+## Requisitos Previos
+
+- Java 21 instalado.
+- Maven instalado.
+- MySQL activo en `localhost:3306`.
+- Usuario MySQL por defecto: `root` sin password.
+
+Las bases se crean automaticamente porque las URLs usan `createDatabaseIfNotExist=true`.
+
+## Bases De Datos
+
+| Servicio | Base de datos |
+| --- | --- |
+| `paciente-service` | `bd_paciente_eval` |
+| `medico-service` | `bd_medico_eval` |
+| `cita-service` | `bd_cita_eval` |
+
+## Orden De Ejecucion
+
+Abrir una terminal por servicio y ejecutar en este orden.
+
+### 1. Eureka Server
 
 ```powershell
 cd eureka-server
-..\paciente-service\mvnw.cmd spring-boot:run
+mvn spring-boot:run
 ```
+
+Abrir en navegador:
+
+```text
+http://localhost:8761
+```
+
+### 2. Paciente Service
 
 ```powershell
 cd paciente-service
-.\mvnw.cmd spring-boot:run
+mvn spring-boot:run
 ```
+
+### 3. Medico Service
 
 ```powershell
 cd medico-service
-.\mvnw.cmd spring-boot:run
+mvn spring-boot:run
 ```
+
+### 4. Cita Service
 
 ```powershell
 cd cita-service
-.\mvnw.cmd spring-boot:run
+mvn spring-boot:run
 ```
+
+### 5. API Gateway
 
 ```powershell
 cd api-gateway
-..\paciente-service\mvnw.cmd spring-boot:run
+mvn spring-boot:run
 ```
 
-## Flujo recomendado en Postman
+## Verificacion En Eureka
 
-Todas las rutas pueden probarse desde el gateway usando `http://localhost:8080`.
+En el navegador:
 
-### 1. Crear paciente
+```text
+http://localhost:8761
+```
+
+Deben aparecer como `UP`:
+
+```text
+API-GATEWAY
+PACIENTE-SERVICE
+MEDICO-SERVICE
+CITA-SERVICE
+```
+
+## Rutas Por API Gateway
+
+Todas las pruebas del entregable pueden hacerse desde:
+
+```text
+http://localhost:8080
+```
+
+| Recurso | URL |
+| --- | --- |
+| Pacientes | `http://localhost:8080/api/pacientes` |
+| Especialidades | `http://localhost:8080/api/especialidades` |
+| Consultorios | `http://localhost:8080/api/consultorios` |
+| Medicos | `http://localhost:8080/api/medicos` |
+| Horarios medicos | `http://localhost:8080/api/horarios-medicos` |
+| Citas | `http://localhost:8080/api/citas` |
+| Estados de cita | `http://localhost:8080/api/estados-cita` |
+| Atenciones | `http://localhost:8080/api/atenciones` |
+
+## Pruebas En Postman
+
+Configurar `Body -> raw -> JSON` y `Content-Type: application/json`.
+
+### 1. Registrar Paciente
 
 `POST http://localhost:8080/api/pacientes`
 
 ```json
 {
-  "dni": "74589632",
-  "nombres": "Juan",
-  "apellidos": "Perez",
-  "telefono": "999888777",
-  "correo": "juan.perez@mail.com"
+  "dni": "73928461",
+  "nombres": "Valeria",
+  "apellidos": "Quispe Rojas",
+  "fechaNacimiento": "1998-04-12",
+  "sexo": "F",
+  "telefono": "965432187",
+  "direccion": "Jr. Los Alamos 245, Lima",
+  "correo": "valeria.quispe739@correo.com",
+  "estado": "A"
 }
 ```
 
-### 2. Crear especialidad
+### 2. Listar Pacientes
+
+`GET http://localhost:8080/api/pacientes`
+
+### 3. Registrar Especialidad
 
 `POST http://localhost:8080/api/especialidades`
 
 ```json
 {
-  "nombre": "Cardiologia",
-  "descripcion": "Atencion cardiovascular"
+  "nombre": "Neurologia",
+  "descripcion": "Especialidad del sistema nervioso",
+  "estado": "A"
 }
 ```
 
-### 3. Crear consultorio
+### 4. Registrar Consultorio
 
 `POST http://localhost:8080/api/consultorios`
 
 ```json
 {
-  "numero": "C-203",
-  "piso": 2,
-  "ubicacion": "Torre A"
+  "numero": "C-405",
+  "piso": 4,
+  "ubicacion": "Torre B"
 }
 ```
 
-### 4. Crear medico
+### 5. Registrar Medico
 
 `POST http://localhost:8080/api/medicos`
 
+Usar el `idEspecialidad` y `idConsultorio` creados antes.
+
 ```json
 {
-  "cmp": "CMP12345",
-  "nombres": "Carlos",
-  "apellidos": "Torres",
-  "telefono": "987654321",
-  "correo": "carlos.torres@mail.com",
+  "cmp": "CMP301",
+  "nombres": "Fernando",
+  "apellidos": "Salazar Nunez",
+  "telefono": "954781236",
+  "correo": "fernando.salazar301@clinica.com",
   "idEspecialidad": 1,
-  "idConsultorio": 1
+  "idConsultorio": 1,
+  "estado": "A"
 }
 ```
 
-### 5. Crear horario medico
+### 6. Registrar Horario Medico
 
 `POST http://localhost:8080/api/horarios-medicos`
 
 ```json
 {
   "idMedico": 1,
-  "diaSemana": "JUEVES",
-  "horaInicio": "08:00",
-  "horaFin": "13:00"
+  "diaSemana": "LUNES",
+  "horaInicio": "08:00:00",
+  "horaFin": "12:00:00"
 }
 ```
 
-### 6. Crear cita valida
+### 7. Registrar Cita
 
 `POST http://localhost:8080/api/citas`
 
+`2026-07-13` cae lunes, por eso coincide con el horario anterior.
+
 ```json
 {
-  "fecha": "2026-06-25",
-  "hora": "10:30",
+  "fecha": "2026-07-13",
+  "hora": "09:00:00",
   "idPaciente": 1,
   "idMedico": 1,
-  "motivo": "Dolor en el pecho"
+  "idEstado": 1,
+  "motivo": "Consulta general"
 }
 ```
 
-### 7. Consultar cita integrada
+### 8. Consultar Cita Detallada
 
 `GET http://localhost:8080/api/citas/1`
 
@@ -130,27 +251,65 @@ Respuesta esperada:
 ```json
 {
   "idCita": 1,
-  "fecha": "2026-06-25",
-  "hora": "10:30:00",
+  "fecha": "2026-07-13",
+  "hora": "09:00:00",
   "estado": "PROGRAMADA",
   "paciente": {
-    "nombre": "Juan Perez",
-    "dni": "74589632"
+    "nombre": "Valeria Quispe Rojas",
+    "dni": "73928461"
   },
   "medico": {
-    "nombre": "Carlos Torres",
-    "especialidad": "Cardiologia"
+    "nombre": "Fernando Salazar Nunez",
+    "especialidad": "Neurologia"
   },
   "consultorio": {
-    "numero": "C-203",
-    "piso": 2
+    "numero": "C-405",
+    "piso": 4
   }
 }
 ```
 
-### 8. Probar cita duplicada
+### 9. Actualizar Estado De Cita
 
-Repetir el `POST /api/citas` con la misma fecha, hora y medico. Debe responder error:
+`PUT http://localhost:8080/api/citas/1/estado?idEstado=2`
+
+Estados:
+
+```text
+1 = PROGRAMADA
+2 = CONFIRMADA
+3 = ATENDIDA
+4 = CANCELADA
+```
+
+### 10. Cancelar Cita
+
+`PUT http://localhost:8080/api/citas/1/cancelar`
+
+### 11. Registrar Atencion
+
+`POST http://localhost:8080/api/atenciones`
+
+```json
+{
+  "idCita": 1,
+  "diagnostico": "Evaluacion medica general",
+  "tratamiento": "Reposo, hidratacion y control en 7 dias",
+  "observaciones": "Paciente estable"
+}
+```
+
+### 12. Listar Atenciones
+
+`GET http://localhost:8080/api/atenciones`
+
+## Validaciones De Negocio
+
+### Cita Duplicada
+
+Repetir el registro de una cita con el mismo medico, fecha y hora.
+
+Respuesta esperada:
 
 ```json
 {
@@ -158,9 +317,22 @@ Repetir el `POST /api/citas` con la misma fecha, hora y medico. Debe responder e
 }
 ```
 
-### 9. Probar cita fuera de horario
+### Horario No Disponible
 
-Cambiar la hora a una fuera del rango del horario medico, por ejemplo `"15:30"`. Debe responder error:
+Intentar registrar una cita fuera del horario del medico:
+
+```json
+{
+  "fecha": "2026-07-13",
+  "hora": "15:00:00",
+  "idPaciente": 1,
+  "idMedico": 1,
+  "idEstado": 1,
+  "motivo": "Intento fuera de horario disponible"
+}
+```
+
+Respuesta esperada:
 
 ```json
 {
@@ -168,7 +340,21 @@ Cambiar la hora a una fuera del rango del horario medico, por ejemplo `"15:30"`.
 }
 ```
 
-### 10. Cancelar cita
+## Evidencias Recomendadas
 
-`PUT http://localhost:8080/api/citas/1/cancelar`
+1. Eureka Server mostrando servicios registrados.
+2. Registro y listado de pacientes.
+3. Registro de especialidad y consultorio.
+4. Registro y listado de medicos.
+5. Registro de horario medico.
+6. Registro, listado y detalle integrado de cita.
+7. Actualizacion/cancelacion de cita.
+8. Registro/listado de atenciones.
+9. Validacion de cita duplicada.
+10. Validacion de horario no disponible.
 
+## Conclusiones
+
+1. Se implemento un sistema de gestion de citas medicas basado en microservicios, separando responsabilidades entre pacientes, medicos, citas, Eureka Server y API Gateway.
+2. Se valido el flujo principal mediante Postman, incluyendo registro, listado, actualizacion, cancelacion e integracion de datos entre servicios.
+3. Se aplicaron validaciones de negocio para impedir citas duplicadas y citas fuera del horario medico disponible, reforzando la consistencia del sistema.
